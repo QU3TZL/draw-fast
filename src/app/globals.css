@@ -168,3 +168,29 @@ body {
 a {
 	color: black
 }
+
+.multimodal-chat-panel {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  width: 300px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 16px;
+  z-index: 1000;
+}
+
+.multimodal-chat-panel form {
+  display: flex;
+  margin-bottom: 16px;
+}
+
+.multimodal-chat-panel input {
+  flex-grow: 1;
+  margin-right: 8px;
+}
+
+.multimodal-chat-panel .output {
+  margin-top: 16px;
+}

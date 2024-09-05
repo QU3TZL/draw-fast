@@ -18,6 +18,7 @@ import {
 } from '@tldraw/tldraw'
 import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { MultimodalChatPanel } from '@/components/MultimodalChatPanel';
 
 fal.config({
 	requestMiddleware: fal.withProxy({
@@ -100,6 +101,7 @@ export default function Home() {
 						<SneakySideEffects />
 						<LockupLink />
 						<LiveImageAssets />
+						<MultimodalChatPanel />
 					</Tldraw>
 				</div>
 			</main>
