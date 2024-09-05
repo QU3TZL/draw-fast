@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useEditor } from '@tldraw/tldraw';
 
 async function query(data: { question: string }) {
@@ -17,56 +17,70 @@ async function query(data: { question: string }) {
 }
 
 export function MultimodalChatPanel() {
-  console.log('MultimodalChatPanel is rendering');
   const editor = useEditor();
   const [input, setInput] = useState('');
-  const [output, setOutput] = useState('');
+  const [chatHistory, setChatHistory] = useState<Array<{ type: 'user' | 'ai', content: string }>>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!input.trim()) return;
+
     setIsLoading(true);
+    setChatHistory(prev => [...prev, { type: 'user', content: input }]);
+    setInput('');
+
     try {
       const response = await query({ question: input });
-      setOutput(response.text);
+      setChatHistory(prev => [...prev, { type: 'ai', content: response.text }]);
     } catch (error) {
       console.error('Error fetching response:', error);
-      setOutput('An error occurred while processing your request.');
+      setChatHistory(prev => [...prev, { type: 'ai', content: 'An error occurred while processing your request.' }]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handlePaste = () => {
-    if (output) {
-      editor.createShapes([
-        {
-          type: 'text',
-          props: { text: output },
-        },
-      ]);
-    }
+  const handlePaste = (content: string) => {
+    editor.createShapes([
+      {
+        type: 'text',
+        props: { text: content },
+      },
+    ]);
   };
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [chatHistory]);
 
   return (
     <div className="multimodal-chat-panel">
+      <div className="chat-history" ref={chatContainerRef}>
+        {chatHistory.map((message, index) => (
+          <div key={index} className={`message ${message.type}`}>
+            <p>{message.content}</p>
+            {message.type === 'ai' && (
+              <button onClick={() => handlePaste(message.content)}>Paste to Canvas</button>
+            )}
+          </div>
+        ))}
+      </div>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Enter your prompt..."
+          disabled={isLoading}
         />
         <button type="submit" disabled={isLoading}>
           {isLoading ? 'Generating...' : 'Generate'}
         </button>
       </form>
-      {output && (
-        <div className="output">
-          <p>{output}</p>
-          <button onClick={handlePaste}>Paste to Canvas</button>
-        </div>
-      )}
     </div>
   );
 }
