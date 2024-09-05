@@ -17,6 +17,7 @@ async function query(data: { question: string }) {
 }
 
 export function MultimodalChatPanel() {
+  console.log('MultimodalChatPanel is rendering');
   const editor = useEditor();
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
