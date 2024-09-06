@@ -16,7 +16,7 @@ import {
 	track,
 	useEditor,
 } from '@tldraw/tldraw'
-import { useEffect } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { MultimodalChatPanel } from '@/components/MultimodalChatPanel';
 
 fal.config({

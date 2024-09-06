@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useEditor } from '@tldraw/tldraw';
 import { Mic, Upload, ThumbsUp, ThumbsDown, Copy, Send } from 'lucide-react';
+import Image from 'next/image';
 
 // Define AI agent types
 type AIAgent = {
@@ -186,7 +187,7 @@ export function MultimodalChatPanel() {
             {chatHistory.map((message, index) => (
               <div key={index} className={`message ${message.type}`}>
                 {message.isImage ? (
-                  <img src={message.content} alt="AI generated" className="generated-image" />
+                  <Image src={message.content} alt="AI generated" className="generated-image" width={300} height={300} />
                 ) : (
                   <p>{message.content}</p>
                 )}
