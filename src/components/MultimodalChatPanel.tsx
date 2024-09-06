@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useEditor } from '@tldraw/tldraw';
+import { Mic, Upload, ThumbsUp, ThumbsDown, Copy, Send } from 'lucide-react';
 
 // Define AI agent types
 type AIAgent = {
@@ -10,10 +11,17 @@ type AIAgent = {
 };
 
 const aiAgents: AIAgent[] = [
-  { id: 'new', name: 'New', icon: '🆕', description: 'General-purpose AI assistant' },
-  { id: 'code', name: 'Code', icon: '💻', description: 'Specialized in coding tasks' },
-  { id: 'creative', name: 'Creative', icon: '🎨', description: 'For creative writing and brainstorming' },
-  // Add more agents as needed
+  { id: 'new', name: 'New Matic', icon: '🔧', description: 'General-purpose AI assistant' },
+  { id: 'dusty', name: 'Dusty matic', icon: '💡', description: 'Specialized in creative tasks' },
+  { id: 'driven', name: 'Driven-o-Matic', icon: '⚙️', description: 'Focused on productivity' },
+  { id: 'pack', name: 'Pack-o-matic', icon: '📦', description: 'Packaging and logistics expert' },
+  { id: 'artistic', name: 'Artistic-o-Matic', icon: '❤️', description: 'For artistic endeavors' },
+  { id: 'stable', name: 'Stable matic', icon: '🐎', description: 'Stability and reliability focused' },
+  { id: 'robo', name: 'Robo Matic', icon: '🍄', description: 'Robotics and automation specialist' },
+  { id: 'scholar', name: 'Scholar matic', icon: '📚', description: 'Academic and research assistant' },
+  { id: 'media', name: 'Media matic', icon: '🎥', description: 'Media and entertainment expert' },
+  { id: 'ai', name: 'AI matic', icon: '🧠', description: 'AI and machine learning specialist' },
+  { id: 'xcore', name: 'xCore-o-Matic', icon: '💡', description: 'Core systems and infrastructure expert' },
 ];
 
 async function query(data: { question: string, agentId: string }) {
@@ -41,6 +49,8 @@ export function MultimodalChatPanel() {
   const [selectedAgent, setSelectedAgent] = useState<AIAgent | null>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleAgentSelect = (agent: AIAgent) => {
     setSelectedAgent(agent);
@@ -106,6 +116,46 @@ export function MultimodalChatPanel() {
     }
   };
 
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer.files);
+    handleFiles(files);
+  };
+
+  const handleFiles = (files: File[]) => {
+    const fileNames = files.map(file => file.name).join(', ');
+    setChatHistory(prev => [...prev, { type: 'user', content: `Uploaded files: ${fileNames}` }]);
+    // Implement file upload logic here
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    handleFiles(files);
+  };
+
   return (
     <div 
       className={`multimodal-chat-panel ${position}`}
@@ -141,12 +191,22 @@ export function MultimodalChatPanel() {
                   <p>{message.content}</p>
                 )}
                 {message.type === 'ai' && (
-                  <button onClick={() => handlePaste(message.content)}>Paste to Canvas</button>
+                  <div className="message-actions">
+                    <button onClick={() => handlePaste(message.content)}><Copy size={16} /></button>
+                    <button><ThumbsUp size={16} /></button>
+                    <button><ThumbsDown size={16} /></button>
+                  </div>
                 )}
               </div>
             ))}
           </div>
-          <form onSubmit={handleSubmit}>
+          <div 
+            className={`input-area ${isDragging ? 'dragging' : ''}`}
+            onDragEnter={handleDragEnter}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
             <textarea
               ref={inputRef}
               value={input}
@@ -154,13 +214,26 @@ export function MultimodalChatPanel() {
                 setInput(e.target.value);
                 handleInputResize(e);
               }}
-              placeholder="Enter your prompt..."
+              placeholder="Ask a question or drag and drop files here"
               disabled={isLoading}
             />
-            <button type="submit" disabled={isLoading}>
-              {isLoading ? 'Generating...' : 'Generate'}
-            </button>
-          </form>
+            <div className="input-actions">
+              <div>
+                <button onClick={() => {/* Implement voice input */}}><Mic size={20} /></button>
+                <button onClick={handleUploadClick}><Upload size={20} /></button>
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  className="hidden" 
+                  onChange={handleFileInputChange}
+                  multiple
+                />
+              </div>
+              <button onClick={handleSubmit} disabled={isLoading}>
+                {isLoading ? 'Generating...' : <Send size={20} />}
+              </button>
+            </div>
+          </div>
         </>
       )}
     </div>
