@@ -55,9 +55,11 @@ const uiOverrides: TLUiOverrides = {
 
 export default function Home() {
 	return (
-		<main className="flex h-screen">
-			<MultimodalChatPanel />
-			<div className="flex-grow">
+		<main className="flex h-screen w-screen">
+			<div className="w-1/4 h-full">
+				<MultimodalChatPanel />
+			</div>
+			<div className="w-3/4 h-full">
 				<Tldraw
 					overrides={uiOverrides}
 					shapeUtils={[LiveImageShapeUtil]}
