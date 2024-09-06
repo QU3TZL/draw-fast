@@ -59,7 +59,7 @@ export default function Home() {
 			<div className="w-1/4 h-full">
 				<MultimodalChatPanel />
 			</div>
-			<div className="w-3/4 h-full">
+			<div className="w-3/4 h-full relative">
 				<Tldraw
 					overrides={uiOverrides}
 					shapeUtils={[LiveImageShapeUtil]}
