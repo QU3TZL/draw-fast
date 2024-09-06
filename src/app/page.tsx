@@ -19,7 +19,39 @@ import {
 import { useEffect, useState, useMemo } from 'react'
 import { MultimodalChatPanel } from '@/components/MultimodalChatPanel';
 
-// ... (keep your existing configurations)
+fal.config({
+	requestMiddleware: fal.withProxy({
+		targetUrl: '/api/fal/proxy',
+	}),
+})
+
+const uiOverrides: TLUiOverrides = {
+	tools: (editor, tools) => {
+		tools.liveImage = {
+			id: 'live-image',
+			icon: 'tool-frame',
+			label: 'Frame',
+			kbd: 'f',
+			readonlyOk: false,
+			onSelect: () => {
+				editor.setCurrentTool('live-image')
+			},
+		}
+		return tools
+	},
+	toolbar: (_app, toolbar, { tools }) => {
+		const frameIndex = toolbar.findIndex((item) => item.id === 'frame')
+		if (frameIndex !== -1) toolbar.splice(frameIndex, 1)
+		const highlighterIndex = toolbar.findIndex((item) => item.id === 'highlight')
+		if (highlighterIndex !== -1) {
+			const highlighterItem = toolbar[highlighterIndex]
+			toolbar.splice(highlighterIndex, 1)
+			toolbar.splice(3, 0, highlighterItem)
+		}
+		toolbar.splice(2, 0, toolbarItem(tools.liveImage))
+		return toolbar
+	},
+}
 
 export default function Home() {
 	return (
@@ -28,7 +60,7 @@ export default function Home() {
 			<div className="flex-grow">
 				<LiveImageProvider appId="tldraw-draw-fast">
 					<Tldraw
-						overrides={overrides}
+						overrides={uiOverrides}
 						shapeUtils={[LiveImageShapeUtil]}
 						shareZone={<MakeLiveButton />}
 						persistenceKey="tldraw-draw-fast"
