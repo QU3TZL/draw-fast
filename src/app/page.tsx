@@ -62,11 +62,10 @@ export default function Home() {
 					<Tldraw
 						overrides={uiOverrides}
 						shapeUtils={[LiveImageShapeUtil]}
+						tools={[LiveImageTool]}
 						shareZone={<MakeLiveButton />}
 						persistenceKey="tldraw-draw-fast"
-					>
-						<LiveImageTool />
-					</Tldraw>
+					/>
 				</LiveImageProvider>
 			</div>
 		</main>

@@ -26,7 +26,7 @@ type LiveImageRequest = {
 type LiveImageContextType = null | ((req: LiveImageRequest) => Promise<LiveImageResult>)
 const LiveImageContext = createContext<LiveImageContextType>(null)
 
-export function LiveImageProvider({
+export function  LiveImageProvider({
 	children,
 	appId,
 	throttleTime = 0,
