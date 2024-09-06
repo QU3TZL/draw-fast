@@ -114,10 +114,15 @@ export function MultimodalChatPanel() {
     const { clientX, clientY } = e;
     const { innerWidth, innerHeight } = window;
     
-    if (clientX < innerWidth / 3) setPosition('left');
-    else if (clientX > (2 * innerWidth) / 3) setPosition('right');
-    else if (clientY < innerHeight / 2) setPosition('top');
-    else setPosition('bottom');
+    let newX = position.x;
+    let newY = position.y;
+
+    if (clientX < innerWidth / 3) newX = 0;
+    else if (clientX > (2 * innerWidth) / 3) newX = innerWidth - 300; // Assuming panel width is 300px
+    if (clientY < innerHeight / 2) newY = 0;
+    else newY = innerHeight - 300; // Assuming panel height is 300px
+
+    setPosition({ x: newX, y: newY });
   };
 
   const handleInputResize = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
