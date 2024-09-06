@@ -365,3 +365,10 @@ a {
 .multimodal-chat-panel .hidden {
   display: none;
 }
+
+.chat-panel-handle {
+  cursor: move;
+  padding: 5px;
+  background-color: #333;
+  text-align: center;
+}

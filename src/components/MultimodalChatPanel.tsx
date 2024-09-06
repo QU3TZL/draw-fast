@@ -44,14 +44,18 @@ async function query(data: { question: string, agentId: string }) {
 export function MultimodalChatPanel() {
   const editor = useEditor();
   const [input, setInput] = useState('');
-  const [chatHistory, setChatHistory] = useState<Array<{ type: 'user' | 'ai', content: string, isImage?: boolean }>>([]);
+  const [chatHistory, setChatHistory] = useState<Array<{ type: 'user' | 'ai', content: string, replicateImage?: string }>>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [position, setPosition] = useState<'left' | 'right' | 'top' | 'bottom'>('right');
   const [selectedAgent, setSelectedAgent] = useState<AIAgent | null>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+
+  // New state variables for dragging and positioning
+  const [position, setPosition] = useState({ x: 20, y: 20 });
+  const [isDraggingPanel, setIsDraggingPanel] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   const handleAgentSelect = (agent: AIAgent) => {
     setSelectedAgent(agent);
@@ -68,11 +72,17 @@ export function MultimodalChatPanel() {
 
     try {
       const response = await query({ question: input, agentId: selectedAgent.id });
-      setChatHistory(prev => [...prev, { 
-        type: 'ai', 
-        content: response.text,
-        isImage: response.text.startsWith('http') && (response.text.endsWith('.png') || response.text.endsWith('.jpg') || response.text.endsWith('.jpeg'))
-      }]);
+      const replicateImageMatch = response.text.match(/!\[.*?\]\((https:\/\/replicate\.delivery\/[^\s)]+)\)/);
+      
+      if (replicateImageMatch) {
+        setChatHistory(prev => [...prev, { 
+          type: 'ai', 
+          content: 'Here\'s the image you requested:',
+          replicateImage: replicateImageMatch[1]
+        }]);
+      } else {
+        setChatHistory(prev => [...prev, { type: 'ai', content: response.text }]);
+      }
     } catch (error) {
       console.error('Error fetching response:', error);
       setChatHistory(prev => [...prev, { type: 'ai', content: 'An error occurred while processing your request.' }]);
@@ -157,12 +167,77 @@ export function MultimodalChatPanel() {
     handleFiles(files);
   };
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      setIsDraggingPanel(true);
+      setDragOffset({
+        x: e.clientX - position.x,
+        y: e.clientY - position.y,
+      });
+    }
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (isDraggingPanel) {
+      const newX = e.clientX - dragOffset.x;
+      const newY = e.clientY - dragOffset.y;
+      
+      // Check for edge snapping
+      const snapDistance = 20; // pixels
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      const panelWidth = chatContainerRef.current?.offsetWidth || 0;
+      const panelHeight = chatContainerRef.current?.offsetHeight || 0;
+
+      let snappedX = newX;
+      let snappedY = newY;
+
+      if (newX < snapDistance) snappedX = 0;
+      if (newY < snapDistance) snappedY = 0;
+      if (newX + panelWidth > windowWidth - snapDistance) snappedX = windowWidth - panelWidth;
+      if (newY + panelHeight > windowHeight - snapDistance) snappedY = windowHeight - panelHeight;
+
+      setPosition({ x: snappedX, y: snappedY });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDraggingPanel(false);
+  };
+
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDraggingPanel, dragOffset]);
+
   return (
     <div 
-      className={`multimodal-chat-panel ${position}`}
-      draggable
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
+      ref={chatContainerRef}
+      className="multimodal-chat-panel"
+      style={{
+        position: 'fixed',
+        top: `${position.y}px`,
+        left: `${position.x}px`,
+        zIndex: 1000,
+        width: '300px',
+        backgroundColor: 'black',
+        border: '1px solid #333',
+        color: 'white',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        resize: 'both',
+        minWidth: '200px',
+        minHeight: '300px',
+        maxWidth: '80vw',
+        maxHeight: '80vh',
+        boxShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
+      }}
+      onMouseDown={handleMouseDown}
     >
       {!selectedAgent ? (
         <div className="agent-selection">
@@ -186,8 +261,14 @@ export function MultimodalChatPanel() {
           <div className="chat-history" ref={chatContainerRef}>
             {chatHistory.map((message, index) => (
               <div key={index} className={`message ${message.type}`}>
-                {message.isImage ? (
-                  <Image src={message.content} alt="AI generated" className="generated-image" width={300} height={300} />
+                {message.replicateImage ? (
+                  <Image
+                    src={message.replicateImage}
+                    alt="AI generated image"
+                    width={300}
+                    height={300}
+                    style={{ maxWidth: '100%', height: 'auto' }}
+                  />
                 ) : (
                   <p>{message.content}</p>
                 )}
