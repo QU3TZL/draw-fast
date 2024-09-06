@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client'
 
-import { LiveImageShape, LiveImageShapeUtil } from '@/components/LiveImageShapeUtil'
+import { LiveImageShapeUtil } from '@/components/LiveImageShapeUtil'
 import { LiveImageTool, MakeLiveButton } from '@/components/LiveImageTool'
 import { LockupLink } from '@/components/LockupLink'
 import { LiveImageProvider } from '@/hooks/useLiveImage'
@@ -58,15 +58,13 @@ export default function Home() {
 		<main className="flex h-screen">
 			<MultimodalChatPanel />
 			<div className="flex-grow">
-				<LiveImageProvider appId="tldraw-draw-fast">
-					<Tldraw
-						overrides={uiOverrides}
-						shapeUtils={[LiveImageShapeUtil]}
-						tools={[LiveImageTool]}
-						shareZone={<MakeLiveButton />}
-						persistenceKey="tldraw-draw-fast"
-					/>
-				</LiveImageProvider>
+				<Tldraw
+					overrides={uiOverrides}
+					shapeUtils={[LiveImageShapeUtil]}
+					tools={[LiveImageTool]}
+					shareZone={<MakeLiveButton />}
+					persistenceKey="tldraw-draw-fast"
+				/>
 			</div>
 		</main>
 	)
