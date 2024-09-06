@@ -49,13 +49,6 @@ export function MultimodalChatPanel() {
   const [selectedAgent, setSelectedAgent] = useState<AIAgent | null>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-
-  // New state variables for dragging and positioning
-  const [position, setPosition] = useState({ x: 20, y: 20 });
-  const [isDraggingPanel, setIsDraggingPanel] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   const handleAgentSelect = (agent: AIAgent) => {
     setSelectedAgent(agent);
@@ -106,144 +99,8 @@ export function MultimodalChatPanel() {
     }
   }, [chatHistory]);
 
-  const handleDragStart = (e: React.DragEvent) => {
-    e.dataTransfer.setData('text/plain', '');
-  };
-
-  const handleDragEnd = (e: React.DragEvent) => {
-    const { clientX, clientY } = e;
-    const { innerWidth, innerHeight } = window;
-    
-    let newX = position.x;
-    let newY = position.y;
-
-    if (clientX < innerWidth / 3) newX = 0;
-    else if (clientX > (2 * innerWidth) / 3) newX = innerWidth - 300; // Assuming panel width is 300px
-    if (clientY < innerHeight / 2) newY = 0;
-    else newY = innerHeight - 300; // Assuming panel height is 300px
-
-    setPosition({ x: newX, y: newY });
-  };
-
-  const handleInputResize = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (inputRef.current) {
-      inputRef.current.style.height = 'auto';
-      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
-    }
-  };
-
-  const handleDragEnter = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-    const files = Array.from(e.dataTransfer.files);
-    handleFiles(files);
-  };
-
-  const handleFiles = (files: File[]) => {
-    const fileNames = files.map(file => file.name).join(', ');
-    setChatHistory(prev => [...prev, { type: 'user', content: `Uploaded files: ${fileNames}` }]);
-    // Implement file upload logic here
-  };
-
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    handleFiles(files);
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      setIsDraggingPanel(true);
-      setDragOffset({
-        x: e.clientX - position.x,
-        y: e.clientY - position.y,
-      });
-    }
-  };
-
-  const handleMouseMove = (e: MouseEvent) => {
-    if (isDraggingPanel) {
-      const newX = e.clientX - dragOffset.x;
-      const newY = e.clientY - dragOffset.y;
-      
-      // Check for edge snapping
-      const snapDistance = 20; // pixels
-      const windowWidth = window.innerWidth;
-      const windowHeight = window.innerHeight;
-      const panelWidth = chatContainerRef.current?.offsetWidth || 0;
-      const panelHeight = chatContainerRef.current?.offsetHeight || 0;
-
-      let snappedX = newX;
-      let snappedY = newY;
-
-      if (newX < snapDistance) snappedX = 0;
-      if (newY < snapDistance) snappedY = 0;
-      if (newX + panelWidth > windowWidth - snapDistance) snappedX = windowWidth - panelWidth;
-      if (newY + panelHeight > windowHeight - snapDistance) snappedY = windowHeight - panelHeight;
-
-      setPosition({ x: snappedX, y: snappedY });
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDraggingPanel(false);
-  };
-
-  useEffect(() => {
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDraggingPanel, dragOffset]);
-
   return (
-    <div 
-      ref={chatContainerRef}
-      className="multimodal-chat-panel"
-      style={{
-        position: 'fixed',
-        top: `${position.y}px`,
-        left: `${position.x}px`,
-        zIndex: 1000,
-        width: '300px',
-        backgroundColor: 'black',
-        border: '1px solid #333',
-        color: 'white',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        resize: 'both',
-        minWidth: '200px',
-        minHeight: '300px',
-        maxWidth: '80vw',
-        maxHeight: '80vh',
-        boxShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
-      }}
-      onMouseDown={handleMouseDown}
-    >
+    <div className="multimodal-chat-panel">
       {!selectedAgent ? (
         <div className="agent-selection">
           <h2>Select an AI Agent</h2>
@@ -251,8 +108,7 @@ export function MultimodalChatPanel() {
             {aiAgents.map(agent => (
               <div key={agent.id} className="agent-card" onClick={() => handleAgentSelect(agent)}>
                 <div className="agent-icon">{agent.icon}</div>
-                <h3>{agent.name}</h3>
-                <p>{agent.description}</p>
+                <div className="agent-name">{agent.name}</div>
               </div>
             ))}
           </div>
@@ -287,37 +143,18 @@ export function MultimodalChatPanel() {
               </div>
             ))}
           </div>
-          <div 
-            className={`input-area ${isDragging ? 'dragging' : ''}`}
-            onDragEnter={handleDragEnter}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-          >
+          <div className="input-area">
             <textarea
               ref={inputRef}
               value={input}
-              onChange={(e) => {
-                setInput(e.target.value);
-                handleInputResize(e);
-              }}
-              placeholder="Ask a question or drag and drop files here"
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type your message..."
               disabled={isLoading}
             />
             <div className="input-actions">
-              <div>
-                <button onClick={() => {/* Implement voice input */}}><Mic size={20} /></button>
-                <button onClick={handleUploadClick}><Upload size={20} /></button>
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  className="hidden" 
-                  onChange={handleFileInputChange}
-                  multiple
-                />
-              </div>
+              <button onClick={() => {/* Implement voice input */}}><Mic size={20} /></button>
               <button onClick={handleSubmit} disabled={isLoading}>
-                {isLoading ? 'Generating...' : <Send size={20} />}
+                {isLoading ? 'Sending...' : <Send size={20} />}
               </button>
             </div>
           </div>

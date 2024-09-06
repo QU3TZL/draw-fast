@@ -170,205 +170,91 @@ a {
 }
 
 .multimodal-chat-panel {
-  position: fixed;
   width: 300px;
-  height: 500px;
-  background-color: black;
-  border: 1px solid #333;
+  height: 100vh;
+  background-color: #f0f0f0;
+  border-right: 1px solid #ccc;
   display: flex;
   flex-direction: column;
-  z-index: 1000;
-  transition: all 0.3s ease;
-  overflow: hidden;
-  color: white;
 }
 
-.multimodal-chat-panel.left {
-  top: 50%;
-  left: 0;
-  transform: translateY(-50%);
+.chat-header {
+  padding: 16px;
+  background-color: #e0e0e0;
+  border-bottom: 1px solid #ccc;
 }
 
-.multimodal-chat-panel.right {
-  top: 50%;
-  right: 0;
-  transform: translateY(-50%);
+.chat-history {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 0;
 }
 
-.multimodal-chat-panel.top {
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
+.input-area {
+  padding: 16px;
+  border-top: 1px solid #ccc;
 }
 
-.multimodal-chat-panel.bottom {
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+.input-area textarea {
+  width: 100%;
+  resize: none;
+  padding: 8px;
+  margin-bottom: 8px;
 }
 
-.multimodal-chat-panel .agent-selection {
+.input-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.message {
+  padding: 16px;
+  border-bottom: 1px solid #ccc;
+}
+
+.message:last-child {
+  border-bottom: none;
+}
+
+.message.user {
+  background-color: #e1f5fe;
+}
+
+.message.ai {
+  background-color: #f0f4c3;
+}
+
+.message-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.agent-selection {
   padding: 16px;
 }
 
-.multimodal-chat-panel .agent-selection h2 {
-  margin-bottom: 16px;
-  text-align: center;
-}
-
-.multimodal-chat-panel .agent-grid {
+.agent-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
+  margin-top: 16px;
 }
 
-.multimodal-chat-panel .agent-card {
+.agent-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   cursor: pointer;
 }
 
-.multimodal-chat-panel .agent-icon {
-  width: 64px;
-  height: 64px;
-  background-color: white;
-  color: black;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.agent-icon {
   font-size: 32px;
   margin-bottom: 8px;
 }
 
-.multimodal-chat-panel .chat-history {
-  flex-grow: 1;
-  overflow-y: auto;
-  padding: 16px;
-  border: 12px solid black;
-}
-
-.multimodal-chat-panel .message {
-  margin-bottom: 16px;
-  padding: 8px;
-  border-radius: 4px;
-}
-
-.multimodal-chat-panel .message.user {
-  background-color: white;
-  color: black;
-}
-
-.multimodal-chat-panel .message.ai {
-  background-color: #f0f0f0;
-  color: black;
-}
-
-.multimodal-chat-panel .message .generated-image {
-  max-width: 100%;
-  height: auto;
-  margin-bottom: 8px;
-}
-
-.multimodal-chat-panel .message button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: black;
-  padding: 4px;
-}
-
-.multimodal-chat-panel .input-area {
-  background-color: black;
-  padding: 16px;
-}
-
-.multimodal-chat-panel .resize-handle {
-  height: 4px;
-  background-color: #333;
-  cursor: ns-resize;
-}
-
-.multimodal-chat-panel textarea {
-  width: 100%;
-  background-color: white;
-  color: black;
-  border: none;
-  padding: 8px;
-  resize: none;
-  margin-bottom: 8px;
-}
-
-.multimodal-chat-panel .input-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.multimodal-chat-panel .input-actions button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: white;
-}
-
-.multimodal-chat-panel .file-drop-area {
-  border: 2px dashed #555;
-  border-radius: 4px;
-  padding: 20px;
-  text-align: center;
-  margin-bottom: 16px;
-}
-
-.multimodal-chat-panel .file-drop-area.dragging {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.multimodal-chat-panel .chat-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid #333;
-}
-
-.multimodal-chat-panel .message-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.multimodal-chat-panel .input-area {
-  padding: 16px;
-  border-top: 1px solid #333;
-}
-
-.multimodal-chat-panel .input-area.dragging {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.multimodal-chat-panel .input-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 8px;
-}
-
-.multimodal-chat-panel .input-actions button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: white;
-}
-
-.multimodal-chat-panel .hidden {
-  display: none;
-}
-
-.chat-panel-handle {
-  cursor: move;
-  padding: 5px;
-  background-color: #333;
+.agent-name {
+  font-size: 10px;
   text-align: center;
 }
