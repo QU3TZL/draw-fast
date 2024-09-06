@@ -26,7 +26,7 @@ export default function Home() {
 		<main className="flex h-screen">
 			<MultimodalChatPanel />
 			<div className="flex-grow">
-				<LiveImageProvider>
+				<LiveImageProvider appId="tldraw-draw-fast">
 					<Tldraw
 						overrides={overrides}
 						shapeUtils={[LiveImageShapeUtil]}
