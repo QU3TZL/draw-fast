@@ -18,6 +18,7 @@ import {
 } from '@tldraw/tldraw'
 import { useEffect, useState, useMemo } from 'react'
 import { MultimodalChatPanel } from '@/components/MultimodalChatPanel';
+import { createPortal } from 'react-dom'
 
 fal.config({
 	requestMiddleware: fal.withProxy({
