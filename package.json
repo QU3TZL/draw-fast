@@ -9,7 +9,7 @@
 		"start": "next start",
 		"lint": "next lint",
 		"format": "prettier --write .",
-		"postinstall": "npx browserslist@latest --update-db"
+		"postinstall": "npx update-browserslist-db@latest"
 	},
 	"dependencies": {
 		"@fal-ai/serverless-client": "^0.6.0",
